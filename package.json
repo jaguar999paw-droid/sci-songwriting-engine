@@ -1,0 +1,19 @@
+{
+  "name": "sci-songwriting-engine",
+  "version": "1.0.0",
+  "description": "Structured Creative Intelligence — AI Songwriting Engine",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently --names BACKEND,FRONTEND --prefix-colors magenta,cyan \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "dev:backend": "npm start --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["songwriting", "ai", "creative", "identity", "music", "kenya", "sheng"],
+  "author": "jaguar999paw-droid",
+  "license": "MIT"
+}
