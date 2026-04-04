@@ -1,0 +1,20 @@
+/** KnobSlider.jsx — Rotary knob-style range input */
+import styles from './KnobSlider.module.css'
+
+export default function KnobSlider({ label, value, onChange, min = 0, max = 100, unit = '' }) {
+  const pct = (value - min) / (max - min)
+  const deg = -135 + pct * 270
+  return (
+    <div className={styles.knob}>
+      <div className={styles.dial} style={{ '--deg': `${deg}deg` }}>
+        <div className={styles.marker} />
+      </div>
+      <input type="range" min={min} max={max} value={value}
+        onChange={e => onChange(Number(e.target.value))} className={styles.slider} />
+      <div className={styles.readout}>
+        <span className={styles.val}>{value}{unit}</span>
+        <span className={styles.lbl}>{label}</span>
+      </div>
+    </div>
+  )
+}
