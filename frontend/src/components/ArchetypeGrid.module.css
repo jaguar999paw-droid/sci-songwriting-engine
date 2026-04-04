@@ -1,0 +1,7 @@
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.card { background: var(--surface2); border: 1px solid var(--grey-dark); border-radius: var(--radius); padding: 10px 8px; cursor: pointer; text-align: center; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.card:hover { border-color: var(--green-dim); background: var(--surface3); }
+.selected { border-color: var(--green) !important; background: rgba(0,255,136,0.08) !important; box-shadow: 0 0 12px var(--green-glow); }
+.emoji { font-size: 20px; line-height: 1; }
+.name { font-size: 10px; font-weight: 700; color: var(--text); font-family: var(--font-mono); }
+.desc { font-size: 9px; color: var(--text-muted); line-height: 1.3; }
