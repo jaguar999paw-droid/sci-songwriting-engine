@@ -1,0 +1,21 @@
+.zone { display: flex; flex-direction: column; gap: 8px; }
+.textarea {
+  width: 100%; padding: 12px;
+  background: var(--surface2);
+  border: 1px dashed var(--grey-dark);
+  border-radius: var(--radius);
+  color: var(--text); font-family: var(--font-sans); font-size: 13px;
+  line-height: 1.6; resize: vertical;
+  transition: border-color 0.2s;
+}
+.textarea:focus { border-color: var(--green); border-style: solid; }
+.textarea::placeholder { color: var(--text-muted); font-style: italic; }
+.preview { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  font-size: 10px; font-family: var(--font-mono);
+  background: var(--surface3);
+  border: 1px solid var(--green-deep);
+  color: var(--green-dim);
+  border-radius: 20px; padding: 2px 9px;
+}
+.pill b { color: var(--green); }

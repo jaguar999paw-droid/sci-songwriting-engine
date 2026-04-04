@@ -1,0 +1,149 @@
+/* Cockpit — 3-panel instrument layout */
+.cockpit {
+  display: grid;
+  grid-template-columns: 280px 1fr 260px;
+  gap: 0;
+  min-height: calc(100vh - 40px - 72px); /* bar top + ignite dock */
+  margin-top: 40px; /* PersonaLiveBar height */
+  padding-bottom: 72px;
+  border-top: 1px solid var(--grey-dark);
+}
+
+/* Panel base */
+.panel {
+  display: flex; flex-direction: column; gap: 0;
+  border-right: 1px solid var(--grey-dark);
+  overflow-y: auto;
+  padding: 0 0 24px;
+}
+.panel:last-child { border-right: none; }
+.panelCentre { background: color-mix(in srgb, var(--green) 2%, var(--bg)); }
+
+.panelHeader {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--grey-dark);
+  position: sticky; top: 0;
+  background: rgba(4,4,7,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 10;
+}
+.panelLabel {
+  font-family: var(--font-display);
+  font-size: 28px; letter-spacing: 4px;
+  color: var(--green);
+}
+.panelSub {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1.5px; color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Field block */
+.fieldBlock { padding: 14px 16px; border-bottom: 1px solid var(--grey-dark); }
+.fieldLabel {
+  font-size: 9px; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--text-muted);
+  font-family: var(--font-mono); margin-bottom: 10px;
+}
+
+/* Rejection chips */
+.chipGrid { display: flex; flex-wrap: wrap; gap: 5px; }
+.rejectChip {
+  padding: 4px 9px;
+  background: var(--surface2);
+  border: 1px solid var(--grey-dark);
+  border-radius: 3px;
+  font-size: 10px; color: var(--text-muted);
+  font-family: var(--font-mono);
+  cursor: pointer; transition: all 0.12s;
+}
+.rejectChip:hover { border-color: var(--magenta-dim); color: var(--text); }
+.chipActive {
+  border-color: var(--magenta) !important;
+  color: var(--magenta) !important;
+  background: var(--magenta-glow) !important;
+}
+.autoNote {
+  font-size: 10px; color: var(--text-muted);
+  font-style: italic; margin-top: 8px;
+  text-align: center;
+}
+
+/* Knobs row */
+.knobs { display: flex; gap: 20px; justify-content: center; padding: 8px 0; }
+
+/* Textareas */
+.textarea {
+  width: 100%; padding: 12px;
+  background: var(--surface2);
+  border: 1px solid var(--grey-dark);
+  border-radius: var(--radius);
+  color: var(--text); font-family: var(--font-sans); font-size: 14px;
+  line-height: 1.6; resize: vertical;
+  transition: border-color 0.2s;
+}
+.textarea::placeholder { color: var(--text-muted); font-style: italic; }
+.textareaMagenta:focus { box-shadow: 0 0 0 2px var(--magenta), 0 0 16px var(--magenta-glow) !important; }
+
+/* Perspective pills */
+.pills { display: flex; gap: 6px; }
+.pill {
+  flex: 1; padding: 7px;
+  background: var(--surface2);
+  border: 1px solid var(--grey-dark);
+  border-radius: var(--radius-sm);
+  font-size: 11px; font-family: var(--font-mono);
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+  text-align: center;
+}
+.pill:hover { border-color: var(--green-dim); color: var(--text); }
+.pillActive {
+  border-color: var(--green) !important;
+  color: var(--green) !important;
+  background: var(--green-glow) !important;
+}
+
+/* Config preview */
+.previewBox {
+  margin: 14px 16px 0;
+  background: var(--surface2);
+  border: 1px solid var(--grey-dark);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+.previewLabel {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text-muted); font-family: var(--font-mono);
+  margin-bottom: 8px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--grey-dark);
+}
+.configLine { display: flex; gap: 6px; align-items: baseline; margin-bottom: 4px; }
+.configKey { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); width: 42px; flex-shrink: 0; text-transform: uppercase; }
+.configVal { font-family: var(--font-mono); font-size: 11px; color: var(--green); }
+
+/* Ignite dock */
+.igniteDock {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(4,4,7,0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--grey-dark);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 16px;
+  z-index: 200;
+}
+.igniteBtn {
+  flex: 1; max-width: 360px; margin: 0 auto;
+  padding: 14px;
+  background: var(--green); color: #000;
+  border: none; border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 28px; letter-spacing: 4px;
+  cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.igniteBtn:hover:not(:disabled) {
+  background: var(--magenta); color: #fff;
+}
+.igniteBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+.igniting { animation: ignite 0.8s ease; }
+.igniteHint { font-size: 11px; color: var(--text-muted); font-style: italic; }

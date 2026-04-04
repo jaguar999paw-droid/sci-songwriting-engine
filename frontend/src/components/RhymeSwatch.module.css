@@ -1,0 +1,22 @@
+.swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.swatch {
+  background: var(--surface2);
+  border: 1px solid var(--grey-dark);
+  border-radius: var(--radius-sm);
+  padding: 7px 4px;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: all 0.15s;
+}
+.swatch:hover { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, var(--surface2)); }
+.selected {
+  border-color: var(--c) !important;
+  background: color-mix(in srgb, var(--c) 16%, var(--surface2)) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.code {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 700;
+  color: var(--c);
+}
+.name { font-size: 8px; color: var(--text-muted); }

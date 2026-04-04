@@ -3,33 +3,20 @@
  *
  * Flow:
  *   Step 0: Landing
- *   Step 1: Identity Discovery
- *             v1: Questionnaire.jsx   @deprecated
- *             v2: Cockpit.jsx         ← TODO: build this (see docs/AGENT_PROMPT_V2.md)
- *   Step 2: Persona Review
- *             v1: PersonaReview.jsx   @deprecated
- *             v2: CockpitPreview.jsx  ← TODO: build this
- *   Step 3: Song Generation (Generator.jsx — unchanged)
- *   Step 4: Song Display (SongDisplay.jsx — v2 with per-section regen)
+ *   Step 1: Cockpit.jsx        — 3-panel spatial identity input (v2)
+ *   Step 2: CockpitPreview.jsx — cinematic persona reveal (v2)
+ *   Step 3: Generator.jsx      — section-by-section AI generation
+ *   Step 4: SongDisplay.jsx    — v2 with per-section regen + save
  *
- * NOTE: Cockpit.jsx and CockpitPreview.jsx are the next agent's primary task.
- * Until they exist, this file falls back to the v1 Questionnaire flow.
- * Once built, replace the v1 imports below with the v2 cockpit components.
+ * Legacy pages (Questionnaire, PersonaReview) kept but @deprecated.
  */
 import { useState } from 'react'
-import Landing       from './pages/Landing'
-// v1 (deprecated — kept until Cockpit.jsx is complete)
-import Questionnaire from './pages/Questionnaire'
-import PersonaReview from './pages/PersonaReview'
-// v2 (TODO — uncomment once Cockpit.jsx and CockpitPreview.jsx are created)
-// import Cockpit        from './pages/Cockpit'
-// import CockpitPreview from './pages/CockpitPreview'
-import Generator     from './pages/Generator'
-import SongDisplay   from './pages/SongDisplay'
-import ProgressBar   from './components/ProgressBar'
-import styles        from './App.module.css'
-
-const STEPS = ['Discover', 'Persona', 'Generate', 'Song']
+import Landing        from './pages/Landing'
+import Cockpit        from './pages/Cockpit'
+import CockpitPreview from './pages/CockpitPreview'
+import Generator      from './pages/Generator'
+import SongDisplay    from './pages/SongDisplay'
+import styles         from './App.module.css'
 
 export default function App() {
   const [step,     setStep]     = useState(0)
@@ -70,10 +57,6 @@ export default function App() {
 
   return (
     <div className={styles.app}>
-      {step > 0 && step < 4 && (
-        <ProgressBar steps={STEPS} current={step - 1} />
-      )}
-
       {step === 0 && (
         <Landing
           onStart={() => setStep(1)}
@@ -84,15 +67,10 @@ export default function App() {
         />
       )}
       {step === 1 && (
-        /* TODO v2: replace with <Cockpit onDone={handleAnswersDone} /> */
-        <Questionnaire onDone={handleAnswersDone} />
+        <Cockpit onDone={handleAnswersDone} />
       )}
       {step === 2 && (
-        /* TODO v2: replace with <CockpitPreview answers={answers} onAnalysis={handleAnalysisDone} /> */
-        <PersonaReview
-          answers={answers}
-          onAnalysis={handleAnalysisDone}
-        />
+        <CockpitPreview answers={answers} onAnalysis={handleAnalysisDone} />
       )}
       {step === 3 && analysis && (
         <Generator

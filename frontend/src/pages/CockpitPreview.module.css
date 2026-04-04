@@ -1,0 +1,121 @@
+.screen {
+  min-height: 100vh; width: 100%;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 32px; padding: 40px 24px;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Spinner for loading */
+.spinner {
+  width: 40px; height: 40px;
+  border: 2px solid var(--grey-dark);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.loadingText {
+  font-family: var(--font-display);
+  font-size: 18px; letter-spacing: 4px;
+  color: var(--text-muted);
+}
+
+/* Opacity transitions */
+.archetypeBlock, .messageBlock, .structureBlock, .generateDock {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  width: 100%; max-width: 560px;
+}
+.visible { opacity: 1 !important; transform: translateY(0) !important; }
+
+/* Archetype */
+.archetypeBlock { text-align: center; }
+.archetypeEmoji {
+  display: block; font-size: 56px; margin-bottom: 12px;
+  filter: drop-shadow(0 0 24px var(--green));
+}
+.archetypeName {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 10vw, 72px);
+  letter-spacing: 6px;
+  color: var(--green);
+  text-shadow: 0 0 20px var(--green), 0 0 60px var(--green-glow);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.personaMeta { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.tag {
+  font-size: 11px; font-family: var(--font-mono);
+  border: 1px solid; border-radius: 3px;
+  padding: 2px 8px; letter-spacing: 0.5px;
+}
+
+/* Message */
+.messageBlock {
+  border-left: 2px solid var(--magenta);
+  padding: 14px 20px;
+  text-align: left;
+  background: var(--magenta-glow);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.messageLabel {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--magenta-dim); font-family: var(--font-mono); margin-bottom: 6px;
+}
+.messageText {
+  font-size: 18px; font-style: italic;
+  color: var(--white); line-height: 1.5;
+}
+
+/* Structure */
+.structureBlock {
+  background: var(--surface);
+  border: 1px solid var(--grey-dark);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: left;
+}
+.structureLabel {
+  font-size: 9px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text-muted); font-family: var(--font-mono);
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--grey-dark);
+}
+.sections { display: flex; flex-direction: column; gap: 5px; }
+.sectionRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 8px;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+}
+.sType {
+  font-size: 9px; font-family: var(--font-mono); font-weight: 700;
+  border: 1px solid; border-radius: 3px;
+  padding: 1px 6px; white-space: nowrap; min-width: 60px; text-align: center;
+}
+.sGoal { flex: 1; font-size: 11px; color: var(--text-dim); text-transform: capitalize; }
+.sLines { font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); }
+
+/* Generate dock */
+.generateDock { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.generateBtn {
+  width: 100%; max-width: 360px;
+  padding: 16px;
+  background: var(--green); color: #000;
+  border: none; border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 36px; letter-spacing: 5px;
+  cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.generateBtn:hover { background: var(--magenta); color: #fff; }
+.commitNote { font-size: 11px; color: var(--text-muted); font-style: italic; }
+
+/* Error */
+.error { color: var(--error); font-size: 16px; }
+.errorNote { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.errorNote code {
+  background: var(--surface2); padding: 2px 6px;
+  border-radius: 3px; font-family: var(--font-mono); font-size: 12px;
+}

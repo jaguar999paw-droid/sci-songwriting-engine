@@ -1,0 +1,16 @@
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  padding: 5px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--grey-dark);
+  border-radius: 20px;
+  font-size: 11px; font-family: var(--font-mono);
+  color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.chip:hover { border-color: var(--magenta-dim); color: var(--text); }
+.selected {
+  border-color: var(--magenta) !important;
+  color: var(--magenta) !important;
+  background: var(--magenta-glow) !important;
+}
