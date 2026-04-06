@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        run: npm ci --prefix frontend
+
+      - name: Build frontend
+        run: npm run build --prefix frontend
+
+      - name: Bundle release archive
+        run: |
+          mkdir -p release/sci-${{ github.ref_name }}
+          cp -r backend engine ai ml-service docs release/sci-${{ github.ref_name }}/
+          cp -r frontend/dist release/sci-${{ github.ref_name }}/frontend-dist
+          cp package.json .env.example README.md LICENSE release/sci-${{ github.ref_name }}/
+          cd release
+          tar -czf sci-${{ github.ref_name }}.tar.gz sci-${{ github.ref_name }}
+          zip -r sci-${{ github.ref_name }}.zip sci-${{ github.ref_name }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: SCI ${{ github.ref_name }}
+          body: |
+            ## SCI — Structured Creative Intelligence ${{ github.ref_name }}
+
+            ### What's included
+            - 3-panel Cockpit UI (WHO / WHAT / HOW identity input)
+            - 8-conflict structure planner + PIRE temporal layer
+            - Python ML microservice (emotion, conflict, trait, language models)
+            - Claude + OpenAI provider abstraction
+            - Section-by-section generation with seed-based regeneration
+            - /api/save and /api/sessions for session persistence
+
+            ### Quick start
+            ```bash
+            tar -xzf sci-${{ github.ref_name }}.tar.gz
+            cd sci-${{ github.ref_name }}
+            cp .env.example backend/.env
+            npm install --prefix backend
+            node backend/server.js &
+            # Serve frontend-dist/ with any static server
+            npx serve frontend-dist -p 3000
+            ```
+
+            See README.md for full instructions.
+          files: |
+            release/sci-${{ github.ref_name }}.tar.gz
+            release/sci-${{ github.ref_name }}.zip
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') }}
