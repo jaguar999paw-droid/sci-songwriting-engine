@@ -1,64 +1,75 @@
-const { getTensionWeight } = require('../engine/temporalParser');
-
 /**
- * promptBuilder.js
- * 
- * Constructs structured prompts for the AI layer.
- * Each section gets its own focused prompt — preventing freeform generation.
- * 
- * Prompt strategy based on SONG_QUESTIONAIRE.md WH-questions and SCI philosophy.
+ * promptBuilder.js — v3
+ *
+ * Constructs structured AI prompts integrating:
+ * - Temporal identity (PIRE layer: Past/Present/Future)
+ * - 6-Angle identity framework (identityConfig)
+ * - Alter ego / persona mask system (altEgoEngine)
+ * - Full craft parameters (lyricsStyleEngine: rhetorical devices, humor, prosody, etc.)
+ * - Existing: rhyme, flow, language, imagery, tension weights
  */
 
-// ─── System Prompt ────────────────────────────────────────────────────────────
+const { getTensionWeight }       = require('../engine/temporalParser');
+const { buildCraftBlock }        = require('../engine/lyricsStyleEngine');
+const { buildIdentityFrameBlock }= require('../engine/identityConfig');
+const { buildAlterEgoBlock }     = require('../engine/altEgoEngine');
 
-const SYSTEM_PROMPT = `You are a structured songwriting engine called SCI (Structured Creative Intelligence).
+const SYSTEM_PROMPT = `You are SCI — Structured Creative Intelligence — a disciplined AI songwriting engine.
 
-Your role is to write ONE SECTION of a song at a time, exactly as instructed.
+You write ONE SECTION of a song at a time, exactly as instructed.
 
-RULES YOU MUST FOLLOW:
-1. Write ONLY the requested section (verse / hook / bridge / pre-hook / intro / outro)
-2. Follow the specified rhyme scheme exactly
-3. Match the persona's voice, tone, and perspective
-4. Use the language blend as instructed (English / Kiswahili / Sheng)
-5. Serve the stated GOAL of the section — don't drift
-6. Do NOT include section labels (e.g., don't write "Verse 1:" in the lyrics)
-7. Do NOT explain your choices or add commentary — only output the lyrics
-8. Keep line count close to the specified number (±1 line is acceptable)
-9. Use the imagery style to ground the writing in concrete, sensory language
-10. The core message is the spine — every section must connect back to it
+CORE RULES:
+1. Write ONLY the requested section type. Never bleed into other sections.
+2. Follow all craft parameters exactly as specified.
+3. Match the persona's voice, tone, language, and perspective precisely.
+4. Serve the GOAL of the section — every line must advance it.
+5. Do NOT include section labels in your output (e.g., no "[VERSE 1]")
+6. Do NOT explain, comment, or add meta-text — output lyrics only.
+7. Keep line count within ±1 of the specified target.
+8. The CORE MESSAGE is the spine — every section connects back to it.
+9. Use the imagery style to ground writing in concrete, sensory detail.
+10. If rhetorical devices are specified, deploy them with precision — not decoration.
 
-You are not a general-purpose writer. You are a disciplined songwriting intelligence.`;
+PHILOSOPHY:
+You do not generate songs. You excavate them from identity.
+The user does not need to have lived a chaotic life to write an extraordinary song.
+Every ordinary life, when examined through the 6 angles of identity
+(who I was / could have been / am / can become / will be / might become),
+contains the material for an extraordinary song.
+Your job is to transform that material into structured music.`;
 
-// ─── Section Prompt Builder ────────────────────────────────────────────────────
-
-/**
- * Build a full prompt for one section
- * @param {object} section - from structurePlanner output
- * @param {object} persona - from personaBuilder
- * @param {object} message - from messageExtractor
- * @param {object} style   - from styleMapper
- * @param {Array}  previousSections - array of { type, goal, lyrics } for context
- * @returns {{ systemPrompt: string, userPrompt: string }}
- */
 function buildSectionPrompt(section, persona, message, style, previousSections = []) {
-  // Build context block from previously generated sections
   let contextBlock = '';
   if (previousSections.length > 0) {
-    contextBlock = '\n\n--- PREVIOUSLY WRITTEN SECTIONS (for continuity) ---\n';
+    contextBlock = '\n\n--- PREVIOUSLY WRITTEN SECTIONS ---\n';
     contextBlock += previousSections.map(s =>
-      `[${s.type.toUpperCase()} — ${s.goal}]\n${s.lyrics}`
+      '[' + s.type.toUpperCase() + ' — ' + s.goal + ']\n' + s.lyrics
     ).join('\n\n');
-    contextBlock += '\n--- END OF PREVIOUS SECTIONS ---';
+    contextBlock += '\n--- END PREVIOUS SECTIONS ---';
   }
 
-  // Inject temporal context if available
-  const temporalBlock = buildTemporalBlock(section, message)
+  const temporalBlock  = buildTemporalBlock(section, message);
+  const identityBlock  = message.identityConfig
+    ? buildIdentityFrameBlock(message.identityConfig, section.goal || section.type)
+    : '';
+  const craftConfig    = style.craftConfig || {};
+  const craftBlock     = buildCraftBlock(craftConfig, section.type);
+  const alterEgoBlock  = (message.identityConfig && message.identityConfig.activeAlterEgo)
+    ? buildAlterEgoBlock(message.identityConfig.activeAlterEgo)
+    : '';
+
+  const tw = getTensionWeight(section.type);
+  const tensionLabel = tw >= 0.8
+    ? 'HIGH-TENSION — lean into contradiction, do NOT resolve'
+    : tw >= 0.6
+    ? 'MID-TENSION — explore, question, do not declare'
+    : 'LOW-TENSION — establish, ground, set context';
 
   const userPrompt = `
 SONG BRIEF
 ----------
 Core Message: ${message.coreMessage}
-Sub-Themes: ${(message.subThemes || []).join(', ') || 'none'}
+Sub-Themes:   ${(message.subThemes || []).join(', ') || 'none'}
 
 PERSONA
 -------
@@ -67,42 +78,37 @@ Voice:        ${persona.voice}
 Perspective:  ${persona.perspective} person
 Tone:         ${persona.tone}
 Energy:       ${persona.energy}
-Emotions:     ${persona.primaryEmotion}${persona.secondaryEmotions.length ? ', ' + persona.secondaryEmotions.join(', ') : ''}
+Emotions:     ${persona.primaryEmotion}${persona.secondaryEmotions && persona.secondaryEmotions.length ? ', ' + persona.secondaryEmotions.join(', ') : ''}
 
 STYLE RULES
 -----------
-Rhyme Scheme: ${style.rhymeScheme} — ${style.rhymeDescription}
-Flow:         ${style.flowStyle}
-Language:     ${style.languageInstructions}
-Imagery:      ${style.imageryStyle}
-Devices:      ${style.lyricalDevices.join(', ')}
+Rhyme Scheme:  ${style.rhymeScheme} — ${style.rhymeDescription}
+Flow:          ${style.flowStyle}
+Rawness:       ${style.rawnessDescriptor || 'honest and grounded'}
+Language:      ${style.languageInstructions}
+Imagery:       ${style.imageryStyle}
+Core Devices:  ${(style.lyricalDevices || []).join(', ')}
 
 SECTION TO WRITE
 ----------------
-Type:            ${section.type.toUpperCase()}
-Goal:            ${section.goal} — ${section.description}
-Line Count:      approximately ${section.lines} lines
-Hook Style:      ${section.type === 'hook' ? style.hookStyle : 'N/A'}
-Bridge Style:    ${section.type === 'bridge' ? style.bridgeStyle : 'N/A'}
-Tension Weight:  ${Math.round(getTensionWeight(section.type) * 100)}% — this section is ${getTensionWeight(section.type) >= 0.8 ? 'HIGH-TENSION: lean into contradiction, do not resolve it' : getTensionWeight(section.type) >= 0.6 ? 'MID-TENSION: explore, not declare' : 'LOW-TENSION: establish and ground'}
-${temporalBlock}${contextBlock}
+Type:          ${section.type.toUpperCase()}
+Goal:          ${section.goal} — ${section.description}
+Lines:         approximately ${section.lines}
+Hook Style:    ${section.type === 'hook' ? style.hookStyle : 'N/A'}
+Bridge Style:  ${section.type === 'bridge' ? style.bridgeStyle : 'N/A'}
+Tension:       ${tensionLabel}
+${temporalBlock}${identityBlock}${craftBlock}${alterEgoBlock}${contextBlock}
 
-Now write ONLY this ${section.type.toUpperCase()} section. Output lyrics only. No labels, no commentary.
+Now write ONLY this ${section.type.toUpperCase()} section. Lyrics only. No labels. No commentary.
 `.trim();
 
   return { systemPrompt: SYSTEM_PROMPT, userPrompt };
 }
 
-/**
- * Build a full song prompt for a single-pass generation (simpler use case)
- */
 function buildFullSongPrompt(structure, persona, message, style) {
   const sectionList = structure.sections.map(s =>
-    `Section ${s.index}: ${s.type.toUpperCase()} — Goal: ${s.goal}`
+    'Section ' + s.index + ': ' + s.type.toUpperCase() + ' — Goal: ' + s.goal
   ).join('\n');
-
-  // Inject temporal context if available
-  const temporalBlock = buildTemporalBlock(section, message)
 
   const userPrompt = `
 SONG BRIEF
@@ -118,72 +124,56 @@ STYLE
 -----
 Rhyme: ${style.rhymeScheme} | Language: ${persona.languageMix}
 Flow: ${style.flowStyle}
+Rawness: ${style.rawnessDescriptor || 'honest'}
 
 STRUCTURE
 ---------
 ${sectionList}
 
-Write the complete song following this structure exactly. 
-Label each section clearly (e.g., [VERSE 1], [HOOK], [BRIDGE]).
+Write the complete song following this structure exactly.
+Label each section: [VERSE 1], [HOOK], [BRIDGE], etc.
 Lyrics only — no explanations.
 `.trim();
 
   return { systemPrompt: SYSTEM_PROMPT, userPrompt };
 }
 
-
-/**
- * Build a temporal context block to inject into the AI prompt.
- * Only included if temporal data is available on the message object.
- */
 function buildTemporalBlock(section, message) {
-  const tp = message.temporalProfile
-  if (!tp) return ''
+  const tp = message.temporalProfile;
+  if (!tp) return '';
 
-  const lines = ['\n--- TEMPORAL IDENTITY CONTEXT ---']
+  const lines = ['\n--- TEMPORAL IDENTITY CONTEXT ---'];
 
-  // Tell the AI which time layer this section should draw from
   if (section.type === 'verse' && section.goal === 'recall_origin') {
-    lines.push('TEMPORAL LAYER FOR THIS SECTION: PAST')
-    lines.push('Draw from who the speaker WAS — formative moments, old wounds, earlier version of self.')
+    lines.push('TEMPORAL LAYER: PAST — draw from who the speaker WAS.');
   } else if (section.type === 'hook' || section.type === 'pre-hook') {
-    lines.push('TEMPORAL LAYER FOR THIS SECTION: PRESENT')
-    lines.push('This is the NOW. The unresolved contradiction. The thing that cannot be unsaid.')
+    lines.push('TEMPORAL LAYER: PRESENT — this is the NOW. The unresolved truth.');
   } else if (section.type === 'bridge') {
-    const hasFuture = tp.temporal?.counts?.future > 0
-    lines.push(`TEMPORAL LAYER FOR THIS SECTION: ${hasFuture ? 'FUTURE' : 'PRESENT → FUTURE'}`)
-    lines.push('The bridge is where transformation lives. Show the shift — who they are becoming.')
+    lines.push('TEMPORAL LAYER: FUTURE — show the turn. Who they are becoming.');
   } else if (section.type === 'outro') {
-    lines.push('TEMPORAL LAYER FOR THIS SECTION: FUTURE PROJECTION')
-    lines.push('Leave the listener with the projected self — desired or feared. Open-ended.')
+    lines.push('TEMPORAL LAYER: FUTURE PROJECTION — leave with the projected self. Open-ended.');
   }
 
-  // Logical relation instruction
   if (tp.logicalRelation) {
-    const rel = tp.logicalRelation.relation
+    const rel = tp.logicalRelation.relation;
     if (rel === 'CONTRADICTION') {
-      lines.push(`LOGICAL RELATION: CONTRADICTION (${Math.round(tp.logicalRelation.confidence * 100)}% confidence)`)
-      lines.push('The speaker's identity contains a direct contradiction. Do NOT resolve it. Hold both truths simultaneously.')
+      lines.push('LOGICAL RELATION: CONTRADICTION (' + Math.round(tp.logicalRelation.confidence * 100) + '% confidence)');
+      lines.push('Do NOT resolve this contradiction. Hold both truths simultaneously.');
     } else if (rel === 'CONTRARY') {
-      lines.push('LOGICAL RELATION: CONTRARY — two states that cannot both be true.')
-      lines.push('The speaker is caught between two poles with no middle ground yet found. Write into the gap.')
+      lines.push('LOGICAL RELATION: CONTRARY — two states that cannot both be true. Write into the gap between them.');
     } else if (rel === 'SUBCONTRARY') {
-      lines.push('LOGICAL RELATION: SUBCONTRARY — both things are true at once. This is the complexity.')
-      lines.push('Do NOT simplify. Allow the paradox to breathe. Both truths belong here.')
+      lines.push('LOGICAL RELATION: SUBCONTRARY — both things are true. Do NOT simplify. Let the paradox breathe.');
     }
   }
 
-  // Conflict score
   if (tp.conflictScore != null) {
-    const intensity = tp.conflictScore >= 0.7 ? 'EXTREME' : tp.conflictScore >= 0.4 ? 'HIGH' : 'MODERATE'
-    lines.push(`CONFLICT INTENSITY: ${intensity} (${Math.round(tp.conflictScore * 100)}/100)`)
-    if (tp.conflictScore >= 0.7) {
-      lines.push('Identity conflict is extreme. The language should reflect this — raw, compressed, urgent.')
-    }
+    const intensity = tp.conflictScore >= 0.7 ? 'EXTREME' : tp.conflictScore >= 0.4 ? 'HIGH' : 'MODERATE';
+    lines.push('CONFLICT INTENSITY: ' + intensity + ' (' + Math.round(tp.conflictScore * 100) + '/100)');
+    if (tp.conflictScore >= 0.7) lines.push('Language should be raw, compressed, urgent.');
   }
 
-  lines.push('--- END TEMPORAL CONTEXT ---')
-  return lines.join('\n') + '\n'
+  lines.push('--- END TEMPORAL CONTEXT ---');
+  return lines.join('\n') + '\n';
 }
 
 module.exports = { buildSectionPrompt, buildFullSongPrompt, SYSTEM_PROMPT };
