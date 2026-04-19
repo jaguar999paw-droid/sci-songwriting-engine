@@ -1,7 +1,7 @@
 {
-  "name": "sci-backend",
+  "name": "habitat-backend",
   "version": "1.0.0",
-  "description": "SCI Songwriting Engine – Backend API",
+  "description": "Habitat — Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
