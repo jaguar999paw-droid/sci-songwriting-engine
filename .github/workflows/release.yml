@@ -27,20 +27,20 @@ jobs:
 
       - name: Bundle release archive
         run: |
-          mkdir -p release/sci-${{ github.ref_name }}
-          cp -r backend engine ai ml-service docs release/sci-${{ github.ref_name }}/
-          cp -r frontend/dist release/sci-${{ github.ref_name }}/frontend-dist
-          cp package.json .env.example README.md LICENSE release/sci-${{ github.ref_name }}/
+          mkdir -p release/habitat-${{ github.ref_name }}
+          cp -r backend engine ai ml-service docs release/habitat-${{ github.ref_name }}/
+          cp -r frontend/dist release/habitat-${{ github.ref_name }}/frontend-dist
+          cp package.json .env.example README.md LICENSE release/habitat-${{ github.ref_name }}/
           cd release
-          tar -czf sci-${{ github.ref_name }}.tar.gz sci-${{ github.ref_name }}
-          zip -r sci-${{ github.ref_name }}.zip sci-${{ github.ref_name }}
+          tar -czf habitat-${{ github.ref_name }}.tar.gz habitat-${{ github.ref_name }}
+          zip -r habitat-${{ github.ref_name }}.zip habitat-${{ github.ref_name }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: SCI ${{ github.ref_name }}
+          name: Habitat ${{ github.ref_name }}
           body: |
-            ## SCI — Structured Creative Intelligence ${{ github.ref_name }}
+            ## Habitat — AI Songwriting Engine ${{ github.ref_name }}
 
             ### What's included
             - 3-panel Cockpit UI (WHO / WHAT / HOW identity input)
@@ -52,8 +52,8 @@ jobs:
 
             ### Quick start
             ```bash
-            tar -xzf sci-${{ github.ref_name }}.tar.gz
-            cd sci-${{ github.ref_name }}
+            tar -xzf habitat-${{ github.ref_name }}.tar.gz
+            cd habitat-${{ github.ref_name }}
             cp .env.example backend/.env
             npm install --prefix backend
             node backend/server.js &
@@ -63,7 +63,7 @@ jobs:
 
             See README.md for full instructions.
           files: |
-            release/sci-${{ github.ref_name }}.tar.gz
-            release/sci-${{ github.ref_name }}.zip
+            release/habitat-${{ github.ref_name }}.tar.gz
+            release/habitat-${{ github.ref_name }}.zip
           draft: false
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') }}
