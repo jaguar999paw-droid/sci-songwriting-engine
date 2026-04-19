@@ -1,4 +1,4 @@
-# SCI — Project Status
+# Habitat — Project Status
 > **Last updated:** 2026-04-06 via MCP audit  
 > **Branch surveyed:** `main` (GitHub) + local `HEAD` (5 commits ahead)  
 > **Priority:** This document is the canonical reference for what is DONE, what is LOCAL-ONLY, and what is NEXT.
