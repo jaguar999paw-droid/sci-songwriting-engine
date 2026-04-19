@@ -1,7 +1,7 @@
-# Contributing to SCI
+# Contributing to Habitat
 
 ## Welcome
-SCI is an open, extensible songwriting intelligence system. Contributions that extend
+Habitat is an open, extensible songwriting intelligence system. Contributions that extend
 the engine's vocabulary, archetypes, languages, or structural intelligence are warmly welcomed.
 
 ## Ways to Contribute
