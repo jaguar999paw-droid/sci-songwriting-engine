@@ -151,11 +151,24 @@ async function parseIdentity(userInputs) {
 
   const temporalProfile = parseTemporalIdentity(userInputs, emotions, conflicts);
 
+  // Per-property confidence scores (rule-based heuristics)
+  const propertyConfidence = {
+    primary_emotion:   emotions.length > 0 ? Math.min(emotions[0].intensity * 1.2, 1.0) : 0.1,
+    secondary_emotions: emotions.length > 1 ? 0.7 : 0.2,
+    dominant_conflict:  conflicts.length > 0 ? 0.8 : 0.1,
+    language_mix:      languageMix.sheng ? 0.9 : (languageMix.kiswahili ? 0.8 : 0.6),
+    temporal_dominant: temporalProfile?.temporal?.spread >= 2 ? 0.85 : 0.5,
+    logical_relation:  temporalProfile?.logicalRelation?.confidence || 0.5,
+    archetype:         conflicts.length > 0 ? 0.75 : 0.3,
+    traits:            traits.length >= 2 ? 0.8 : 0.4,
+  };
+
   return {
     rawInputs: userInputs, emotions, conflicts, traits, languageMix,
     wordCount: fullText.split(/\s+/).length,
     timestamp: new Date().toISOString(),
     mlUsed, mlConfidence, semanticProfile,
+    propertyConfidence,
     // PIRE temporal layer
     temporalProfile,
   };

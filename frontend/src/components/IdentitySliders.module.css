@@ -1,0 +1,82 @@
+.console {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.trackLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.trackDesc {
+  font-size: 10px;
+  color: var(--color-text-secondary, #888);
+  font-style: italic;
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pole {
+  font-size: 10px;
+  color: var(--color-text-secondary, #888);
+  min-width: 54px;
+  flex-shrink: 0;
+}
+
+.sliderRow .pole:last-child { text-align: right; }
+
+.slider {
+  flex: 1;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-border);
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--track-color, var(--color-accent));
+  border: 2px solid #000;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--track-color, var(--color-accent));
+  border: 2px solid #000;
+  cursor: pointer;
+}
+
+.fill {
+  height: 2px;
+  border-radius: 1px;
+  transition: width 0.1s;
+  opacity: 0.35;
+  margin-top: -8px;
+  pointer-events: none;
+}
