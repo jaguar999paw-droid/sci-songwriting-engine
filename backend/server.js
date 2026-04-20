@@ -29,6 +29,8 @@ const { extractMessage }   = require('../engine/messageExtractor');
 const { planStructure }    = require('../engine/structurePlanner');
 const { mapStyle }         = require('../engine/styleMapper');
 const { analyzeReference } = require('../engine/referenceAnalyzer');
+const { validateOverrides }         = require('../engine/identitySchema');
+const { detectPropertyTensions, applyTensionsToCraft, buildTensionSummary } = require('../engine/propertyTensionEngine');
 
 const { generateFullSong, generateSection, formatSong } = require('../ai/generator');
 
@@ -75,6 +77,12 @@ app.post('/api/analyze', async (req, res) => {
     if (!answers || Object.keys(answers).length === 0)
       return res.status(400).json({ error: 'No answers provided.' });
 
+    // Schema validation
+    const schemaCheck = validateOverrides(overrides);
+    if (!schemaCheck.valid) {
+      return res.status(400).json({ error: 'Schema validation failed', schemaErrors: schemaCheck.errors });
+    }
+
     const referenceProfile = answers.referenceText
       ? analyzeReference(answers.referenceText)
       : { hasReference: false };
@@ -100,9 +108,23 @@ app.post('/api/analyze', async (req, res) => {
       identityConfig: overrides.identityConfig || null,
     });
 
+    // Cross-property tension detection
+    const propertyTensions = detectPropertyTensions(overrides, parsed);
+    const enhancedCraft    = applyTensionsToCraft(overrides.craft || {}, propertyTensions);
+    const tensionSummary   = buildTensionSummary(propertyTensions);
+
+    // Re-apply style with tension-enhanced craft
+    const finalStyle = mapStyle(persona, {
+      rawness:        overrides.rawness,
+      rhymeScheme:    overrides.rhymeScheme || referenceProfile.rhymeScheme,
+      craft:          enhancedCraft,
+      identityConfig: overrides.identityConfig || null,
+    });
+
     res.json({
       success: true,
-      parsed, persona, message, structure, style,
+      parsed, persona, message, structure, style: finalStyle,
+      propertyTensions, tensionSummary,
       referenceProfile,
       mlUsed:       parsed.mlUsed,
       mlConfidence: parsed.mlConfidence,
@@ -177,6 +199,63 @@ app.get('/api/sessions', (req, res) => {
     res.json({ success: true, sessions, count: sessions.length });
   } catch (err) {
     console.error('Sessions list error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Session Delta ────────────────────────────────────────────────────────────
+/**
+ * POST /api/delta
+ * Body: { currentParsed, sessionId }
+ * Compares current parse against a saved session, returns deltas in persona properties.
+ */
+app.post('/api/delta', (req, res) => {
+  try {
+    const { currentParsed, sessionId } = req.body;
+    if (!sessionId) return res.json({ hasPrevious: false });
+
+    const sessionFile = path.join(SESSIONS_DIR, `session-${sessionId}.json`);
+    if (!fs.existsSync(sessionFile)) return res.json({ hasPrevious: false });
+
+    const previous = JSON.parse(fs.readFileSync(sessionFile, 'utf8'));
+    const prevParsed = previous.parsed;
+    if (!prevParsed) return res.json({ hasPrevious: false });
+
+    const deltas = {};
+
+    // Emotion delta
+    const prevPrimary = prevParsed.emotions?.[0]?.emotion;
+    const currPrimary = currentParsed.emotions?.[0]?.emotion;
+    if (prevPrimary && currPrimary && prevPrimary !== currPrimary)
+      deltas.emotion = { from: prevPrimary, to: currPrimary };
+
+    // Conflict delta
+    const prevConflict = prevParsed.conflicts?.[0]?.type;
+    const currConflict = currentParsed.conflicts?.[0]?.type;
+    if (prevConflict && currConflict && prevConflict !== currConflict)
+      deltas.conflict = { from: prevConflict, to: currConflict };
+
+    // Temporal delta
+    const prevTemporal = prevParsed.temporalProfile?.temporal?.dominant;
+    const currTemporal = currentParsed.temporalProfile?.temporal?.dominant;
+    if (prevTemporal && currTemporal && prevTemporal !== currTemporal)
+      deltas.temporal = { from: prevTemporal, to: currTemporal };
+
+    // Conflict score delta
+    const prevScore = prevParsed.temporalProfile?.conflictScore || 0;
+    const currScore = currentParsed.temporalProfile?.conflictScore || 0;
+    const scoreDiff = Math.round((currScore - prevScore) * 100);
+    if (Math.abs(scoreDiff) >= 10)
+      deltas.conflictScore = { from: Math.round(prevScore * 100), to: Math.round(currScore * 100), diff: scoreDiff };
+
+    const hasDelta = Object.keys(deltas).length > 0;
+    const insight  = hasDelta
+      ? Object.entries(deltas).map(([k, v]) => `${k}: ${v.from} → ${v.to}`).join(' · ')
+      : null;
+
+    res.json({ hasPrevious: true, hasDelta, deltas, insight });
+  } catch (err) {
+    console.error('Delta error:', err);
     res.status(500).json({ error: err.message });
   }
 });

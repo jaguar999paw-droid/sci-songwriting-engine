@@ -147,3 +147,195 @@
 .igniteBtn:disabled { opacity: 0.3; cursor: not-allowed; }
 .igniting { animation: ignite 0.8s ease; }
 .igniteHint { font-size: 11px; color: var(--text-muted); font-style: italic; }
+
+/* ── Phase navigation ─────────────────────────────────────────────────────── */
+.phaseNav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 0;
+  padding: 0 1.5rem;
+}
+
+.phaseTab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.35);
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.phaseTab:hover {
+  color: rgba(255,255,255,0.7);
+}
+
+.phaseTabActive {
+  color: #fff;
+  border-bottom-color: var(--color-accent, #00c8ff);
+}
+
+.phaseTabLocked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.phaseN {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+
+.phaseTabActive .phaseN {
+  background: var(--color-accent, #00c8ff);
+  color: #000;
+}
+
+/* ── Phase body wrapper ───────────────────────────────────────────────────── */
+.phaseBody {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── Phase layouts ────────────────────────────────────────────────────────── */
+.speakPhase,
+.feelPhase {
+  max-width: 640px;
+}
+
+.knowPhase {}
+
+.knowGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.knowLeft,
+.knowRight {}
+
+.craftPhase {}
+
+.craftGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 240px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.craftCol {}
+
+/* ── Phase CTAs ───────────────────────────────────────────────────────────── */
+.phaseCta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 1.5rem;
+  align-items: flex-start;
+}
+
+.ctaBtn {
+  padding: 12px 28px;
+  background: var(--color-accent, #00c8ff);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.ctaBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.ctaBtn:not(:disabled):hover {
+  opacity: 0.85;
+}
+
+.ctaBtn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.ctaBtnBusy {
+  opacity: 0.7;
+}
+
+.backBtn {
+  padding: 10px 20px;
+  background: none;
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.backBtn:hover {
+  color: rgba(255,255,255,0.8);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.skipBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+}
+
+.skipBtn:hover {
+  color: rgba(255,255,255,0.5);
+}
+
+.ctaHint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
+}
+
+.ctaError {
+  font-size: 11px;
+  color: #ff6060;
+  margin: 0;
+}
+
+.phaseNav2 {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── Radar mini (Phase 4 sidebar) ─────────────────────────────────────────── */
+.radarMini {
+  margin-top: 1.5rem;
+  opacity: 0.85;
+}
+
