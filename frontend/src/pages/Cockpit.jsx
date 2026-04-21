@@ -213,7 +213,7 @@ function HealthIndicator() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN COCKPIT
 // ═══════════════════════════════════════════════════════════════════════════════
-export default function Cockpit({ onDone }) {
+export default function Cockpit({ onDone, preFill }) {
   const [phase, setPhase] = useState(1)
   const [s, setS] = useState(() => {
     try {
@@ -232,6 +232,17 @@ export default function Cockpit({ onDone }) {
     const id = setTimeout(() => { try { localStorage.setItem(PERSIST_KEY, JSON.stringify(s)) } catch {} }, 2000)
     return () => clearTimeout(id)
   }, [s])
+
+  // Pre-fill from Journal/HookWorksheet synthesis
+  useEffect(() => {
+    if (!preFill) return
+    setS(prev => ({
+      ...prev,
+      mainIdea:      preFill.mainIdea      || prev.mainIdea,
+      emotionalTruth:preFill.emotionalTruth|| prev.emotionalTruth,
+      socialConflict:preFill.socialConflict|| prev.socialConflict,
+    }))
+  }, [preFill])
 
   // Migrate stale keys
   useEffect(() => {
