@@ -260,6 +260,85 @@ app.post('/api/delta', (req, res) => {
   }
 });
 
+
+// ── Hook Book Proxy Routes ─────────────────────────────────────────────────────
+// These proxy to the Python ML service hookbook endpoints
+
+const ML_BASE = process.env.ML_URL || 'http://localhost:3002';
+
+async function proxyToML(path, body) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5000);
+  try {
+    const r = await fetch(ML_BASE + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    return await r.json();
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+// POST /api/hookbook/syllables   — syllable count per line
+app.post('/api/hookbook/syllables', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/syllables', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/rhymes      — perfect + near rhymes for a word
+app.post('/api/hookbook/rhymes', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/rhymes', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/stress      — stress pattern + meter
+app.post('/api/hookbook/stress', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/stress', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/scheme      — end rhyme scheme detection
+app.post('/api/hookbook/scheme', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/scheme', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/devices     — literary device detection
+app.post('/api/hookbook/devices', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/devices', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/grammar     — grammar intelligence
+app.post('/api/hookbook/grammar', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/grammar', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/synonyms    — songwriting synonyms
+app.post('/api/hookbook/synonyms', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/synonyms', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/coherence   — verse coherence score
+app.post('/api/hookbook/coherence', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/coherence', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+// POST /api/hookbook/analyze     — full Hook Book analysis (all-in-one)
+app.post('/api/hookbook/analyze', async (req, res) => {
+  try { res.json(await proxyToML('/hookbook/analyze', req.body)); }
+  catch(e) { res.status(503).json({ error: e.message }); }
+});
+
+
 // ── Start ─────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n🎵 Habitat Songwriting Engine v3 — http://localhost:${PORT}`);

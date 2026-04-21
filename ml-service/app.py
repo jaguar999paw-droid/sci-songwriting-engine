@@ -103,6 +103,108 @@ def embed():
         return jsonify({'error': str(e)}), 500
 
 
+
+
+# ── Hook Book Routes (mounted on existing Flask app) ──────────────────────────
+import sys, os
+sys.path.insert(0, os.path.dirname(__file__))
+from hookbook_service import (
+    analyze_line_syllables, analyze_lines_syllables,
+    get_rhymes, get_near_rhymes, get_stress_pattern, classify_meter,
+    detect_end_rhyme_scheme, detect_devices, grammar_check,
+    suggest_synonyms, score_verse_coherence
+)
+
+@app.route('/hookbook/syllables', methods=['POST'])
+def hb_syllables():
+    """POST {line: str} or {lines: [str]} — syllable breakdown"""
+    d = request.get_json(silent=True) or {}
+    if 'lines' in d:
+        return jsonify(analyze_lines_syllables(d['lines']))
+    elif 'line' in d:
+        return jsonify(analyze_line_syllables(d['line']))
+    return jsonify({'error': 'line or lines required'}), 400
+
+@app.route('/hookbook/rhymes', methods=['POST'])
+def hb_rhymes():
+    """POST {word: str, near: bool} — perfect + near rhymes"""
+    d = request.get_json(silent=True) or {}
+    word = d.get('word','')
+    if not word: return jsonify({'error': 'word required'}), 400
+    near = bool(d.get('near', True))
+    result = {'word': word, 'rhymes': get_rhymes(word)}
+    if near: result['near_rhymes'] = get_near_rhymes(word, 15)
+    return jsonify(result)
+
+@app.route('/hookbook/stress', methods=['POST'])
+def hb_stress():
+    """POST {line: str} — stress pattern + meter classification"""
+    d = request.get_json(silent=True) or {}
+    line = d.get('line','')
+    if not line: return jsonify({'error': 'line required'}), 400
+    pattern = get_stress_pattern(line)
+    meter = classify_meter(pattern)
+    return jsonify({'line': line, 'pattern': pattern, 'meter': meter})
+
+@app.route('/hookbook/scheme', methods=['POST'])
+def hb_scheme():
+    """POST {lines: [str]} — end rhyme scheme detection"""
+    d = request.get_json(silent=True) or {}
+    lines = d.get('lines',[])
+    if not lines: return jsonify({'error': 'lines required'}), 400
+    scheme = detect_end_rhyme_scheme(lines)
+    return jsonify({'scheme': scheme, 'lines': lines})
+
+@app.route('/hookbook/devices', methods=['POST'])
+def hb_devices():
+    """POST {lines: [str]} — literary device detection"""
+    d = request.get_json(silent=True) or {}
+    lines = d.get('lines',[])
+    if not lines: return jsonify({'error': 'lines required'}), 400
+    return jsonify(detect_devices(lines))
+
+@app.route('/hookbook/grammar', methods=['POST'])
+def hb_grammar():
+    """POST {text: str, artistic_mode: bool} — grammar intelligence"""
+    d = request.get_json(silent=True) or {}
+    text = d.get('text','')
+    if not text: return jsonify({'error': 'text required'}), 400
+    return jsonify(grammar_check(text, d.get('artistic_mode', True)))
+
+@app.route('/hookbook/synonyms', methods=['POST'])
+def hb_synonyms():
+    """POST {word: str} — songwriting synonym suggestions"""
+    d = request.get_json(silent=True) or {}
+    word = d.get('word','')
+    if not word: return jsonify({'error': 'word required'}), 400
+    return jsonify({'word': word, 'suggestions': suggest_synonyms(word)})
+
+@app.route('/hookbook/coherence', methods=['POST'])
+def hb_coherence():
+    """POST {lines: [str]} — verse coherence score"""
+    d = request.get_json(silent=True) or {}
+    lines = d.get('lines',[])
+    if not lines: return jsonify({'error': 'lines required'}), 400
+    return jsonify(score_verse_coherence(lines))
+
+@app.route('/hookbook/analyze', methods=['POST'])
+def hb_full_analyze():
+    """POST {lines: [str], text: str} — full Hook Book analysis in one shot"""
+    d = request.get_json(silent=True) or {}
+    lines = d.get('lines',[])
+    text = d.get('text', chr(10).join(lines))
+    if not lines and not text: return jsonify({'error': 'lines or text required'}), 400
+    if not lines: lines = [l for l in text.split(chr(10)) if l.strip()]
+    return jsonify({
+        'syllables':  analyze_lines_syllables(lines),
+        'scheme':     detect_end_rhyme_scheme(lines),
+        'devices':    detect_devices(lines),
+        'grammar':    grammar_check(text),
+        'coherence':  score_verse_coherence(lines),
+        'stress':     [{ 'line': l, 'pattern': get_stress_pattern(l), 'meter': classify_meter(get_stress_pattern(l)) } for l in lines],
+    })
+
+
 if __name__ == '__main__':
     warm_up()
     port = int(os.environ.get('ML_PORT', 3002))
