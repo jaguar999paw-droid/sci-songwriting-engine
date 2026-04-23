@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jaguar999paw-droid/sci-songwriting-engine/main/assets/habitat-ui.png" alt="Habitat UI" width="100%" />
+  <img src="https://raw.githubusercontent.com/jaguar999paw-droid/Habitat/main/assets/habitat-ui-two.png" alt="Habitat — CockpitHub Identity Input" width="100%" />
 </p>
 
 <h1 align="center">Habitat</h1>
@@ -144,6 +144,14 @@ Habitat treats language as identity — the engine doesn't code-switch randomly,
 
 ---
 
+## UI
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/jaguar999paw-droid/Habitat/main/assets/habitat-ui.png" alt="Habitat — Song Generation View" width="100%" />
+</p>
+
+---
+
 ## Architecture
 
 ### 3-Tier Stack
@@ -241,8 +249,8 @@ POST /api/delta               Session version comparison
 
 ### One-Command Start
 ```bash
-git clone https://github.com/jaguar999paw-droid/sci-songwriting-engine.git
-cd sci-songwriting-engine
+git clone https://github.com/jaguar999paw-droid/Habitat.git
+cd Habitat
 chmod +x START.sh && ./START.sh
 ```
 
@@ -276,7 +284,11 @@ cd frontend && npm install && npm run dev
 ## Project Structure
 
 ```
-sci-songwriting-engine/
+Habitat/
+├── assets/                      UI screenshots
+│   ├── habitat-ui.png           Song generation view
+│   └── habitat-ui-two.png       CockpitHub identity input
+│
 ├── frontend/                    React 18 + Vite
 │   └── src/
 │       ├── pages/
@@ -348,20 +360,6 @@ sci-songwriting-engine/
 
 ---
 
-## Adding a Repo Profile Image or UI Screenshot
-
-To add a screenshot as shown at the top of this README:
-
-1. Take a screenshot of your running UI at `http://localhost:3000`
-2. Create an `assets/` folder in the repo root
-3. Add the image as `assets/habitat-ui.png`
-4. The `<img>` tag at the top of this README will render it automatically on GitHub
-
-For the **repository social preview** (shown when the link is shared on Twitter/WhatsApp):
-- GitHub → repo → **Settings** → **Social preview** → Upload image → Save
-
----
-
 ## Philosophy
 
 Habitat is built on the belief that the most powerful songs emerge from the intersection of three forces:
@@ -384,5 +382,5 @@ MIT © 2024–2026 — Build freely, credit generously.
 
 <p align="center">
   <strong>Habitat</strong> · Identity-mapped AI songwriting<br/>
-  <a href="https://github.com/jaguar999paw-droid/sci-songwriting-engine">github.com/jaguar999paw-droid/sci-songwriting-engine</a>
+  <a href="https://github.com/jaguar999paw-droid/Habitat">github.com/jaguar999paw-droid/Habitat</a>
 </p>
